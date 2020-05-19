@@ -30,7 +30,7 @@ class RecyclerViewFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.main_fragment, container, false)
+        return inflater.inflate(R.layout.recycler_view_fragment, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -46,11 +46,12 @@ class RecyclerViewFragment : Fragment() {
             )
 
             view?.let {
-                recyclerView = it.findViewById<RecyclerView>(R.id.main_recycler_view).apply {
-                    setHasFixedSize(true) // リストの高さが固定の場合true
-                    layoutManager = viewManager
-                    adapter = viewAdapter
-                }
+                recyclerView =
+                    it.findViewById<RecyclerView>(R.id.recycler_view_recycler_view).apply {
+                        setHasFixedSize(true) // リストの高さが固定の場合true
+                        layoutManager = viewManager
+                        adapter = viewAdapter
+                    }
             }
         })
     }
