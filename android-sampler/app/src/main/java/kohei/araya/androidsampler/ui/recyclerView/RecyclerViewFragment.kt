@@ -1,26 +1,27 @@
-package kohei.araya.androidsampler.ui.main
+package kohei.araya.androidsampler.ui.recyclerView
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kohei.araya.androidsampler.R
-import kohei.araya.androidsampler.business.model.MainItems
-import kohei.araya.androidsampler.ui.recyclerView.RecyclerViewFragment
+import kohei.araya.androidsampler.business.model.RecyclerViewItems
+import java.util.*
 
-class MainFragment : Fragment() {
+class RecyclerViewFragment : Fragment() {
 
     companion object {
-        fun newInstance() = MainFragment()
+        fun newInstance() = RecyclerViewFragment()
     }
 
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: RecyclerViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -34,21 +35,13 @@ class MainFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider.NewInstanceFactory().create(MainViewModel::class.java)
+        viewModel = ViewModelProvider.NewInstanceFactory().create(RecyclerViewModel::class.java)
         viewModel.getItems().observe(viewLifecycleOwner, Observer { items ->
-            viewManager = LinearLayoutManager(this.context)
-            viewAdapter = MainAdapter(
+            viewManager = LinearLayoutManager(context)
+            viewAdapter = RecyclerViewAdapter(
                 items,
-                onClickMainListItem = { mainItems ->
-                    val fragment = when (mainItems) {
-                        MainItems.RECYCLER_VIEW -> RecyclerViewFragment.newInstance()
-                        MainItems.SNACK_BAR -> Fragment() // TODO
-                        MainItems.SCOPE_FUNCTIONS -> Fragment() // TODO
-                    }
-
-                    // 画面遷移
-                    activity?.supportFragmentManager?.beginTransaction()?.addToBackStack(null)
-                        ?.replace(R.id.main_layout, fragment)?.commit()
+                onClickMainListItem = {
+                    Toast.makeText(context, it.toString(), Toast.LENGTH_SHORT).show()
                 }
             )
 
@@ -62,32 +55,34 @@ class MainFragment : Fragment() {
         })
     }
 
-    class MainAdapter(
+    class RecyclerViewAdapter(
         // リストに表示する内容
-        private val dataList: List<MainItems>,
+        private val dataList: List<RecyclerViewItems>,
         // リストがクリックされた際の処理
-        private val onClickMainListItem: (mainListItem: MainItems) -> Unit
-    ) : RecyclerView.Adapter<MainAdapter.MainHolder>() {
+        private val onClickMainListItem: (mainListItem: RecyclerViewItems) -> Unit
+    ) : RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder>() {
 
-        class MainHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
+        class RecyclerViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
 
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int
-        ): MainHolder {
+        ): RecyclerViewHolder {
             val textView = LayoutInflater.from(parent.context).inflate(
                 R.layout.recycler_view_item,
                 parent,
                 false
             ) as TextView
-            return MainHolder(textView)
+            return RecyclerViewHolder(textView)
         }
 
-        override fun onBindViewHolder(holder: MainHolder, position: Int) {
+        override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             // リスト項目表示
-            holder.textView.text = dataList[position].toString()
+            holder.textView.text =
+                String.format(Locale.JAPAN, "%s%d", dataList[position].toString(), position)
+
             // 選択イベント(リスナーを呼ぶだけ)
-            holder.textView.setOnClickListener { onClickMainListItem(dataList[position]) }
+            holder.textView.setOnClickListener { onClickMainListItem.invoke(dataList[position]) }
         }
 
         override fun getItemCount() = dataList.size
